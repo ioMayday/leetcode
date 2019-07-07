@@ -1,91 +1,48 @@
 // Source : https://oj.leetcode.com/problems/string-to-integer-atoi/
-// Author : Hao Chen
-// Date   : 2014-06-18
+// Refer. : https://www.cnblogs.com/lca1826/p/6361310.html
+// Author : ioMayday
+// Date   : 2019-07
 
-/********************************************************************************** 
-* 
-* Implement atoi to convert a string to an integer.
-* 
-* Hint: Carefully consider all possible input cases. If you want a challenge, 
-*       please do not see below and ask yourself what are the possible input cases.
-* 
-* Notes: 
-*   It is intended for this problem to be specified vaguely (ie, no given input specs). 
-*   You are responsible to gather all the input requirements up front. 
-* 
-* 
-* Requirements for atoi:
-* 
-* The function first discards as many whitespace characters as necessary until the first 
-* non-whitespace character is found. Then, starting from this character, takes an optional 
-* initial plus or minus sign followed by as many numerical digits as possible, and interprets 
-* them as a numerical value.
-* 
-* The string can contain additional characters after those that form the integral number, 
-* which are ignored and have no effect on the behavior of this function.
-* 
-* If the first sequence of non-whitespace characters in str is not a valid integral number, 
-* or if no such sequence exists because either str is empty or it contains only whitespace 
-* characters, no conversion is performed.
-* 
-* If no valid conversion could be performed, a zero value is returned. If the correct value 
-* is out of the range of representable values, INT_MAX (2147483647) or INT_MIN (-2147483648) 
-* is returned.
-*               
-**********************************************************************************/
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-
-#define INT_MIN     (-2147483647 - 1)
-#define INT_MAX      2147483647
-
-int atoi(const char *str) {
-    if (str==NULL || *str=='\0'){
-        return 0;
-    }
+class Solution {
+public:
+    int myAtoi(string str) {
+        
+        int len = str.length(); 
+        
+        if(len==0)  return 0; //字符串为空情况
+        
     
-    int ret=0;
-    
-    for(;isspace(*str); str++);
-    
-    bool neg=false;
-    if (*str=='-' || *str=='+') {
-        neg = (*str=='-') ;
-        str++;
-    }
-    
-    for(; isdigit(*str); str++) {
-        int digit = (*str-'0');
-        if(neg){
-            if( -ret < (INT_MIN + digit)/10 ) {
-                return INT_MIN;
-            }
-        }else{
-            if( ret > (INT_MAX - digit) /10 ) {
-                return INT_MAX;
-            }
+        long long ans=0; //为便于后面比较 INT_MAx，这里用一个长整型变量
+        int i=0,flag=1;  //flag 默认正数为1 负数为-1
+        
+        while(str[i] != '\0' && str[i] == ' ') //空格预处理
+            ++i;
+       
+        if(str[i]=='+'||str[i]=='-') //取空格后的正负符号
+        {
+            if (str[i]=='-')   flag = -1;
+            ++i;
         }
-
-        ret = 10*ret + digit ;
+        
+        while(str[i] != '\0') //取所有元素，直到换行符结束
+        {
+            if (str[i]>='0' && str[i]<='9') //取0-9之间的字符
+            {
+                ans = ans*10 + str[i] - '0'; //由于str[i]为字符，务必要有 str[i] - '0' 得到数值
+                if (ans > INT_MAX)
+                    if (1 == flag)  //千万注意别写成 flag = 1
+                        return INT_MAX;
+                    else
+                        return INT_MIN;
+            }
+            else break; //遇到非数字字符则退出while循环
+            
+            ++i;            
+        }
+        
+        ans = ans*flag;  //加上正负
+        
+        return (int)ans; //强制转换类型      
+        
     }
-    
-    return neg?-ret:ret;
-}
-
-
-int main()
-{
-    printf("\"%s\" = %d\n", "123", atoi("123"));
-    printf("\"%s\" = %d\n", "   123", atoi("    123"));
-    printf("\"%s\" = %d\n", "+123", atoi("+123"));
-    printf("\"%s\" = %d\n", " -123", atoi(" -123"));
-    printf("\"%s\" = %d\n", "123ABC", atoi("123ABC"));
-    printf("\"%s\" = %d\n", " abc123ABC", atoi(" abc123ABC"));
-    printf("\"%s\" = %d\n", "2147483647", atoi("2147483647"));
-    printf("\"%s\" = %d\n", "-2147483648", atoi("-2147483648"));
-    printf("\"%s\" = %d\n", "2147483648", atoi("2147483648"));
-    printf("\"%s\" = %d\n", "-2147483649", atoi("-2147483649"));
-    return 0;
-}
+};
